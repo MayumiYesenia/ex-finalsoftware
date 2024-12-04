@@ -6,7 +6,16 @@ const Ticket = {
       const query = 'INSERT INTO tickets (concert_name, seat_number) VALUES (?, ?)';
       db.query(query, [concertName, seatNumber], (err, result) => {
         if (err) reject(err);
-        resolve(result);
+        resolve({ id: result.insertId, concertName, seatNumber, status: 'available' });
+      });
+    });
+  },
+  findById: (id) => {
+    return new Promise((resolve, reject) => {
+      const query = 'SELECT * FROM tickets WHERE id = ?';
+      db.query(query, [id], (err, result) => {
+        if (err) reject(err);
+        resolve(result[0]);
       });
     });
   },
@@ -19,12 +28,21 @@ const Ticket = {
       });
     });
   },
-  findById: (id) => {
+  delete: (id) => {
     return new Promise((resolve, reject) => {
-      const query = 'SELECT * FROM tickets WHERE id = ?';
+      const query = 'DELETE FROM tickets WHERE id = ?';
       db.query(query, [id], (err, result) => {
         if (err) reject(err);
-        resolve(result[0]);
+        resolve(result);
+      });
+    });
+  },
+  isAvailable: (id) => {
+    return new Promise((resolve, reject) => {
+      const query = 'SELECT status FROM tickets WHERE id = ?';
+      db.query(query, [id], (err, result) => {
+        if (err) reject(err);
+        resolve(result[0].status === 'available');
       });
     });
   }
